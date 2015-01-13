@@ -40,6 +40,7 @@ class Bot(object):
         self.id = resp.body['self']['id']
         self.name = resp.body['self']['name']
         self.environment = {
+            'self': resp.body['self'],
             'team': resp.body['team'],
             'users': {u['id']: u for u in resp.body['users']},
             'channels': {c['id']: c for c in resp.body['channels']},
