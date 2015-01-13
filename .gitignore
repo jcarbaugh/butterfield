@@ -1,6 +1,7 @@
 .DS_Store
 .env
 *.pyc
+*swp
 dev.py
 dist/
 __pycache__/
