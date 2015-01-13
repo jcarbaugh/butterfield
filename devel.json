@@ -1,4 +1,6 @@
-[
-    ["*", "butterfield.handlers.devel.log"],
-    ["message", "butterfield.handlers.devel.emoji"]
-]
+{
+    "plugins": [
+        "butterfield.handlers.devel.log",
+        "butterfield.handlers.devel.emoji"
+    ]
+}
