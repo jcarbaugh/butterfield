@@ -1,4 +1,6 @@
 from aiowmata.rail import get_predictions
+# pip install -e git://github.com/paultag/aiowmata#egg=aiowmata
+
 import asyncio
 import json
 import re
