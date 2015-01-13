@@ -69,7 +69,7 @@ class Bot(object):
             type_handlers = self.handlers[message_type]
 
             for handler in itertools.chain(self.handlers[ALL], type_handlers):
-                yield from handler(self, message)
+                async.async(handler(self, message))
 
     def listen(self, events, coro):
         if isinstance(events, str):
