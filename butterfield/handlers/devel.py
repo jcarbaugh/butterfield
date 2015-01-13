@@ -7,7 +7,7 @@ from .. import ALL
 def log(bot, message: ALL):
     print(message)
     yield from bot.post(
-        bot.get_channel('testing')['id'],
+        '#testing',
         "```{}```".format(json.dumps(message, sort_keys=True, indent=2))
     )
 

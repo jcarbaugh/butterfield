@@ -94,22 +94,13 @@ class Bot(object):
                 raise ValueError('`{}` is not a valid event type'.format(event))
             self.handlers[event].append(coro)
 
-    def get_channel(self, name_or_id):
-
-        if name_or_id in self.environment['channels']:
-            return self.environment['channels'][name_or_id]
-
-        name_or_id = name_or_id.lstrip('#')
-        for channel in self.environment['channels'].values():
-            if channel['name'] == name_or_id:
-                return channel
-
     @asyncio.coroutine
-    def post(self, channel, text):
+    def post(self, channel_name_or_id, text):
+        channel = self.get_channel(channel_name_or_id)
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'message',
-                'channel': channel,
+                'channel': channel['id'],
                 'text': text}
         content = json.dumps(data)
         yield from self.ws.send(content)
@@ -121,3 +112,27 @@ class Bot(object):
                 'type': 'ping'}
         content = json.dumps(data)
         yield from self.ws.send(content)
+
+    def get_channel(self, name_or_id):
+        return self._env_item('channels', name_or_id, prefix='#')
+
+    def get_group(self, name_or_id):
+        return self._env_item('groups', name_or_id, prefix='#')
+
+    def get_user(self, name_or_id):
+        return self._env_item('users', name_or_id, prefix='@')
+
+    def _env_item(self, key, name_or_id, prefix=None):
+
+        if key not in ['channels', 'users', 'groups', 'ims']:
+            raise ValueError('{} is not a valid type'.format(key))
+
+        if name_or_id in self.environment[key]:
+            return self.environment[key][name_or_id]
+
+        if prefix:
+            name_or_id = name_or_id.lstrip(prefix)
+
+        for item in self.environment[key].values():
+            if item['name'] == name_or_id:
+                return item
