@@ -1,0 +1,4 @@
+[
+    ["*", "butterfield.handlers.devel.log"],
+    ["message", "butterfield.handlers.devel.emoji"]
+]

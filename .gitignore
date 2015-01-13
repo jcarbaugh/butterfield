@@ -1,6 +1,8 @@
 .DS_Store
 .env
 *.pyc
+*swp
 dev.py
 dist/
+*butterfield*egg*
 __pycache__/
