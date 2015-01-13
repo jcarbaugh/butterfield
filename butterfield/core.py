@@ -3,9 +3,10 @@ import os
 import json
 import asyncio
 import websockets
-import importlib
 from collections import defaultdict
 from slacker import Slacker
+
+from .utils import load_plugin
 
 __all__ = ['Bot', 'EVENTS', 'ALL']
 
@@ -35,6 +36,7 @@ class Bot(object):
         self.environment = None
 
     def start(self):
+        self.running = False
         self._message_id = 0
         resp = self.slack.rtm.start()
         self.id = resp.body['self']['id']
@@ -48,13 +50,13 @@ class Bot(object):
             'bots': resp.body['bots'],
         }
 
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(self.ws_handler(resp.body['url'], self))
-        loop.close()
+        return self.ws_handler(resp.body['url'], self)
 
     @asyncio.coroutine
     def ws_handler(self, url, handler):
         self.ws = yield from websockets.connect(url)
+        self.running = True
+
         while True:
             content = yield from self.ws.recv()
 
@@ -74,10 +76,7 @@ class Bot(object):
 
     def listen(self, coro):
         if isinstance(coro, str):
-            # Preform an import by name
-            module, coroutine = coro.rsplit(".", 1)
-            module = importlib.import_module(module)
-            coro = getattr(module, coroutine)
+            coro = load_plugin(coro)
 
         events = coro.__annotations__.get("message")
         if events is None:
@@ -95,6 +94,9 @@ class Bot(object):
 
     @asyncio.coroutine
     def post(self, channel, text):
+        if self.running is False:
+            return
+
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'message',
@@ -105,6 +107,9 @@ class Bot(object):
 
     @asyncio.coroutine
     def ping(self):
+        if self.running is False:
+            return
+
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'ping'}
