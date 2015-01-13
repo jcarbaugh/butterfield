@@ -72,15 +72,21 @@ class Bot(object):
             for handler in itertools.chain(self.handlers[ALL], type_handlers):
                 asyncio.async(handler(self, message))
 
-    def listen(self, events, coro):
-        if isinstance(events, str):
-            events = events.split(',')
-
+    def listen(self, coro):
         if isinstance(coro, str):
             # Preform an import by name
             module, coroutine = coro.rsplit(".", 1)
             module = importlib.import_module(module)
             coro = getattr(module, coroutine)
+
+        events = coro.__annotations__.get("message")
+        if events is None:
+            raise ValueError("No Annotation on plugin `%s`" % (
+                coro.__code__.co_name
+            ))
+
+        if isinstance(events, str):
+            events = [events,]
 
         for event in events:
             if event not in EVENTS and event != ALL:

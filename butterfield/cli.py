@@ -8,14 +8,11 @@ def main():
     """
     CLI entrypoint for testing.
     """
-    config = sys.argv[1]
+    _, config, *args = sys.argv
     with open(config, 'r') as fd:
-        plugins = json.load(fd)
+        config = json.load(fd)
 
-    bot = Bot(*sys.argv[2:])
-
-    for plugin in plugins:
-        print(plugin)
-        bot.listen(*plugin)
-
+    bot = Bot(*args)
+    for plugin in config.get("plugins", []):
+        bot.listen(plugin)
     bot.start()

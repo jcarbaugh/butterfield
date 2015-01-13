@@ -1,9 +1,10 @@
 import asyncio
 import json
+from .. import ALL
 
 
 @asyncio.coroutine
-def log(bot, message):
+def log(bot, message: ALL):
     print(message)
     yield from bot.post(
         'C035687FU', # Sunlight's #testing
@@ -12,7 +13,7 @@ def log(bot, message):
 
 
 @asyncio.coroutine
-def emoji(bot, message):
+def emoji(bot, message: "message"):
     if ':shipit:' not in message['text']:
         return
 
