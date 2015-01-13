@@ -94,6 +94,16 @@ class Bot(object):
                 raise ValueError('`{}` is not a valid event type'.format(event))
             self.handlers[event].append(coro)
 
+    def get_channel(self, name_or_id):
+
+        if name_or_id in self.environment['channels']:
+            return self.environment['channels'][name_or_id]
+
+        name_or_id = name_or_id.lstrip('#')
+        for channel in self.environment['channels'].values():
+            if channel['name'] == name_or_id:
+                return channel
+
     @asyncio.coroutine
     def post(self, channel, text):
         self._message_id += 1

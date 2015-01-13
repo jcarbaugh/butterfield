@@ -16,3 +16,7 @@ def main():
     for plugin in config.get("plugins", []):
         bot.listen(plugin)
     bot.start()
+
+
+if __name__ == '__main__':
+    main()
