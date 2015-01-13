@@ -18,7 +18,9 @@ setup(
         "websockets==2.3",
     ],
 
-    entry_points = {'console_scripts': []},
+    entry_points = {'console_scripts': [
+        'butterfield = butterfield.cli:main'
+    ]},
 
     author       = "Jeremy Carbaugh",
     author_email = "jcarbaugh@sunlightfoundation.com",
