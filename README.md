@@ -22,26 +22,51 @@ This simple bot will listen for *message* events and echo the message to the sam
 	b.listen('message', echo)
 	b.start()
 
-## Usage
+## Running butterfield
 
-### Receiving Slack events
+This package provides the *butterfield* command line utility. This command takes one argument, a path to a configuration file, and runs the bot as defined.
+
+	$ butterfield mybot-config.json
+
+### Bot configuration files
+
+A butterfield config file contains a JSON object defining the bot that will be created.
+
+	{
+		"key": "i-made-this-key-up",
+		"plugins": [
+			"butterfield.handlers.devel.log",
+			"butterfield.handlers.devel.emoji"
+		]
+	}
+
+The *key* property contains the [Slack bot user](https://api.slack.com/bot-users) key. The *plugins* property is a list of strings that are module paths to event handler plugins.
+
+## Writing your own bot
 
 Bots are created by instantiating an instance with a [Slack bot user](https://api.slack.com/bot-users) key.
 
+	from butterfield import Bot
+	
 	mybot = Bot('this-is-not-a-real-key')
 	
+### Receiving Slack events
+
 Message handlers are asyncio [coroutines](https://docs.python.org/3/library/asyncio-task.html#coroutine). When executed, they receive the bot instance that invoked the handler and a copy of the event message from Slack.
 
+	import asyncio
+
 	@asyncio.coroutine
-	def console_printer(bot, message):
-		if 'text' in message:
-			print(message['text'])
+	def console_printer(bot, msg: "message"):
+		if 'text' in msg:
+			print(msg['text'])
 
-Handlers are registered with the bot using the *listen* method. The first argument is the event type for which the handler will be called. The full list of event types can be found in the [RTM API docs](https://api.slack.com/rtm). The handler can be called for all events by using `"*"` or `butterfield.ALL`. Multiple events can be specified by using a comma seperated string of types: `"channel_joined,channel_left"`.
+A [parameter annotation](https://www.python.org/dev/peps/pep-3107/) is used on the message parameter to specify the message types the coroutine will receive. This can be a single string or a list of strings to specificy multiple message types. To trigger the handler for all event types, use `"*"` or `butterfield.ALL`. The full list of event types can be found in the [RTM API docs](https://api.slack.com/rtm).
 
-	mybot.listen('message', console_printer)
+Handlers are added to the bot using the *listen* method. The handler parameter can be either a direct reference to the coroutine or the module path as a string.
 
-The handler parameter can be either a direct reference to the coroutine or the module path as a string.
+	mybot.listen(console_printer)
+	mybot.listen("butterfield.handlers.devel.log")
 
 Now just start the bot and it'll run... FOREVER.
 
