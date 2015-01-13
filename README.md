@@ -12,14 +12,14 @@ This simple bot will listen for *message* events and echo the message to the sam
 	from butterfield import Bot
 	
 	@asyncio.coroutine
-	def echo(bot, msg):
+	def echo(bot, msg: 'message'):
 		yield from bot.post(
 			msg['channel'],
 			msg['text']
 		)
 	
 	b = Bot('slack-bot-key')
-	b.listen('message', echo)
+	b.listen(echo)
 	b.start()
 
 ## Running butterfield
