@@ -4,4 +4,5 @@
 *swp
 dev.py
 dist/
+*butterfield*egg*
 __pycache__/
