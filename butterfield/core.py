@@ -1,8 +1,9 @@
 import itertools
-import json
 import os
+import json
 import asyncio
 import websockets
+import importlib
 from collections import defaultdict
 from slacker import Slacker
 
@@ -75,10 +76,15 @@ class Bot(object):
         if isinstance(events, str):
             events = events.split(',')
 
+        if isinstance(coro, str):
+            # Preform an import by name
+            module, coroutine = coro.rsplit(".", 1)
+            module = importlib.import_module(module)
+            coro = getattr(module, coroutine)
+
         for event in events:
             if event not in EVENTS and event != ALL:
                 raise ValueError('`{}` is not a valid event type'.format(event))
-
             self.handlers[event].append(coro)
 
     @asyncio.coroutine
