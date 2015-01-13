@@ -1,17 +1,17 @@
 {
-  "name": "Butterfield",
-  "description": "A Slack bot framework using the Real Time Messaging API",
-  "website": "https://github.com/sunlightlabs/butterfield",
-  "repository": "https://github.com/sunlightlabs/butterfield",
-  "keywords": [
-    "slack",
-    "bot"
-  ],
-  "env": {
-  	"SECRET_KEY": {
-      "description": "A secret key for secret purposes.",
-      "generator": "secret"
-    }
-  },
-  "addons": []
+    "addons": [],
+    "description": "A Slack bot framework using the Real Time Messaging API",
+    "env": {
+        "SECRET_KEY": {
+            "description": "A secret key for secret purposes.",
+            "generator": "secret"
+        }
+    },
+    "keywords": [
+        "slack",
+        "bot"
+    ],
+    "name": "Butterfield",
+    "repository": "https://github.com/sunlightlabs/butterfield",
+    "website": "https://github.com/sunlightlabs/butterfield"
 }
