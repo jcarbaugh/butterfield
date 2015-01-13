@@ -57,3 +57,4 @@ Handlers can post messages back to Slack using the *post* method on the bot that
 
 * Add HTTP API so messages can be pushed through Butterfield to Slack.
 * Listen for meta events and modify local Slack environment appropriately (list of channels, users, etc.).
+* EVERYTHING ELSE!
