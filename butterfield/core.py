@@ -1,10 +1,12 @@
-import itertools
-import os
-import json
 import asyncio
-import websockets
 import importlib
+import itertools
+import json
+import os
+import uuid
 from collections import defaultdict
+
+import websockets
 from slacker import Slacker
 
 __all__ = ['Bot', 'EVENTS', 'ALL']
@@ -30,6 +32,7 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
 class Bot(object):
 
     def __init__(self, token):
+        self.uuid = uuid.uuid4().hex
         self.slack = Slacker(token)
         self.handlers = defaultdict(list)
         self.environment = None
