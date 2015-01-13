@@ -24,6 +24,8 @@ This simple bot will listen for *message* events and echo the message to the sam
 
 ## Usage
 
+### Receiving Slack events
+
 Bots are created by instantiating an instance with a [Slack bot user](https://api.slack.com/bot-users) key.
 
 	mybot = Bot('this-is-not-a-real-key')
@@ -44,6 +46,12 @@ The handler parameter can be either a direct reference to the coroutine or the m
 Now just start the bot and it'll run... FOREVER.
 
 	mybot.start()
+
+### Posting to Slack
+
+Handlers can post messages back to Slack using the *post* method on the bot that was passed to it. The first parameter is the id of the channel that will receive the post. The second parameter is the message that will be posted.
+
+	bot.post(channel_id, 'Hi, channel!')
 
 ## TODO
 
