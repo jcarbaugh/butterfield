@@ -1,5 +1,11 @@
 import sys
-from . import Bot
+import asyncio
+from . import Bot, ALL
+
+
+@asyncio.coroutine
+def log(bot, message):
+    print(bot, message)
 
 
 def main():
@@ -9,4 +15,5 @@ def main():
 
     import sys
     bot = Bot(*sys.argv[1:])
+    bot.listen(ALL, log)
     bot.start()
