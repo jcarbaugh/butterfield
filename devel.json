@@ -1,4 +1,6 @@
 {
+	"key": "",
+	"name": "develbot",
     "plugins": [
         "butterfield.handlers.devel.log",
         "butterfield.handlers.devel.emoji"
