@@ -31,11 +31,16 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
 
 class Bot(object):
 
-    def __init__(self, token):
+    def __init__(self, token, name=None, daemons=None, **kwargs):
+
         self.uuid = uuid.uuid4().hex
+        self.name = name or self.uuid
         self.slack = Slacker(token)
         self.handlers = defaultdict(list)
+        self.daemons = daemons or []
         self.environment = None
+
+        self.params = kwargs
 
     def start(self):
         self._message_id = 0
