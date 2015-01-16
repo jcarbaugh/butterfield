@@ -18,3 +18,13 @@ def emoji(bot, message: "message"):
         return
 
     yield from bot.post(message['channel'], ':shipit:')
+
+
+@asyncio.coroutine
+def big_ben(bot):
+    while True:
+        yield from bot.post(
+            'C035687FU', # Sunlight's #testing
+            "DONG",
+        )
+        yield from asyncio.sleep(5)
