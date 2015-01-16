@@ -13,7 +13,7 @@ def main():
     with open(config, 'r') as fd:
         config = json.load(fd)
 
-    bot = Bot(*args)
+    bot = Bot(config.get("key"))
     for plugin in config.get("plugins", []):
         bot.listen(plugin)
 
@@ -26,3 +26,7 @@ def main():
         ])
     )
     loop.close()
+
+
+if __name__ == '__main__':
+    main()

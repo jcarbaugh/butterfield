@@ -22,8 +22,8 @@ setup(
         'butterfield = butterfield.cli:main'
     ]},
 
-    author       = "Jeremy Carbaugh",
-    author_email = "jcarbaugh@sunlightfoundation.com",
+    author       = "Sunlight Foundation",
+    author_email = "labs@sunlightfoundation.com",
 
     long_description = long_description,
     description      = '',

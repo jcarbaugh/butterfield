@@ -7,7 +7,7 @@ from .. import ALL
 def log(bot, message: ALL):
     print(message)
     yield from bot.post(
-        'C035687FU', # Sunlight's #testing
+        '#testing',
         "```{}```".format(json.dumps(message, sort_keys=True, indent=2))
     )
 
