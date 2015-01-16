@@ -12,7 +12,9 @@ def main():
     with open(config, 'r') as fd:
         config = json.load(fd)
 
-    bot = Bot(config.get("key"))
+    params = config.get('params') or {}
+
+    bot = Bot(config.get("key"), config.get("name"), **params)
     for plugin in config.get("plugins", []):
         bot.listen(plugin)
     bot.start()
