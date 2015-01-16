@@ -9,7 +9,7 @@ A Slack bot framework using Slack's [Real Time Messaging API](https://api.slack.
 This simple bot will listen for *message* events and echo the message to the same channel. 
 
 	import asyncio
-	from butterfield import Bot
+	import butterfield
 	
 	@asyncio.coroutine
 	def echo(bot, msg: 'message'):
@@ -18,9 +18,10 @@ This simple bot will listen for *message* events and echo the message to the sam
 			msg['text']
 		)
 	
-	b = Bot('slack-bot-key')
+	b = butterfield.Bot('slack-bot-key')
 	b.listen(echo)
-	b.start()
+
+	butterfield.start()
 
 ## Running butterfield
 
@@ -30,15 +31,23 @@ This package provides the *butterfield* command line utility. This command takes
 
 ### Bot configuration files
 
-A butterfield config file contains a JSON object defining the bot that will be created.
+A butterfield config file contains a JSON array containing objects defining the bots that will be created.
 
-	{
-		"key": "i-made-this-key-up",
-		"plugins": [
-			"butterfield.handlers.devel.log",
-			"butterfield.handlers.devel.emoji"
-		]
-	}
+	[
+		{
+			"key": "i-made-this-key-up",
+			"plugins": [
+				"butterfield.handlers.devel.log",
+				"butterfield.handlers.devel.emoji"
+			]
+		},
+		{
+			"key": "also-a-made-up-key",
+			"plugins": [
+				"butterfield.handlers.devel.log",
+			]
+		}
+	]
 
 The *key* property contains the [Slack bot user](https://api.slack.com/bot-users) key. The *plugins* property is a list of strings that are module paths to event handler plugins.
 
@@ -68,9 +77,9 @@ Handlers are added to the bot using the *listen* method. The handler parameter c
 	mybot.listen(console_printer)
 	mybot.listen("butterfield.handlers.devel.log")
 
-Now just start the bot and it'll run... FOREVER.
+Creating a bot adds it to a master registry of bots in butterfield. Now just start the bots and they'll run... FOREVER.
 
-	mybot.start()
+	butterfield.start()
 
 ### Posting to Slack
 

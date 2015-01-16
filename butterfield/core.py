@@ -8,10 +8,12 @@ from collections import defaultdict
 
 import websockets
 from slacker import Slacker
+from .utils import load_plugin
+
 
 from .utils import load_plugin
 
-__all__ = ['Bot', 'EVENTS', 'ALL']
+__all__ = ['Bot', 'EVENTS', 'ALL', 'start', 'gather']
 
 
 ALL = '*'
@@ -33,10 +35,12 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
 
 class Bot(object):
 
-    def __init__(self, token, name=None, daemons=None, **kwargs):
+    _registry = {}
+
+    def __init__(self, token, daemons=None, **kwargs):
 
         self.uuid = uuid.uuid4().hex
-        self.name = name or self.uuid
+        self.name = self.uuid
         self.slack = Slacker(token)
         self.handlers = defaultdict(list)
         self.daemons = daemons or []
@@ -44,12 +48,16 @@ class Bot(object):
 
         self.params = kwargs
 
-    def start(self):
+        if self.name in Bot._registry:
+            raise ValueError("A bot has already been registered with {}".format(self.name))
+
+        Bot._registry[self.name] = self
+
+    def __call__(self):
         self.running = False
         self._message_id = 0
         resp = self.slack.rtm.start()
         self.id = resp.body['self']['id']
-        self.name = resp.body['self']['name']
         self.environment = {
             'self': resp.body['self'],
             'team': resp.body['team'],
@@ -62,8 +70,12 @@ class Bot(object):
 
         return self.ws_handler(resp.body['url'], self)
 
+    def __repr__(self):
+        return "<butterfield.Bot uuid:{}>".format(self.uuid)
+
     @asyncio.coroutine
     def ws_handler(self, url, handler):
+
         self.ws = yield from websockets.connect(url)
         self.running = True
 
@@ -150,3 +162,22 @@ class Bot(object):
         for item in self.environment[key].values():
             if item['name'] == name_or_id:
                 return item
+
+
+def gather():
+
+    coros = []
+
+    for bot in Bot._registry.values():
+        coros.append(bot())
+        coros.extend(load_plugin(x)(bot) for x in bot.daemons)
+
+    return asyncio.gather(*coros)
+    
+
+def start():
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(gather())
+    loop.close()
+
