@@ -2,7 +2,7 @@ import sys
 import json
 import asyncio
 
-import butterfield
+from .core import Bot, run
 from .utils import load_plugin
 
 
@@ -14,16 +14,20 @@ def main():
     with open(config, 'r') as fd:
         bot_config = json.load(fd)
 
+    bots = []
+
     for config in bot_config:
 
         params = config.get('params') or {}
         daemons = config.get('daemons')
 
-        bot = butterfield.Bot(config.get("key"), daemons=daemons, **params)
+        bot = Bot(config.get("key"), daemons=daemons, **params)
         for plugin in config.get("plugins", []):
             bot.listen(plugin)
 
-    butterfield.start()
+        bots.append(bot)
+
+    run(*bots)
 
 
 if __name__ == '__main__':

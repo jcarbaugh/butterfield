@@ -13,7 +13,7 @@ from .utils import load_plugin
 
 from .utils import load_plugin
 
-__all__ = ['Bot', 'EVENTS', 'ALL', 'start', 'gather']
+__all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 
 
 ALL = '*'
@@ -33,9 +33,30 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
           'bot_changed', 'accounts_changed')
 
 
-class Bot(object):
+class Runner(object):
 
-    _registry = {}
+    def __init__(self, *bots):
+        self.registry = {}
+        for bot in bots:
+            self.add_bot(bot)
+
+    def add_bot(self, bot):
+        if bot.name in self.registry:
+            raise ValueError("A bot has already been registered with {}".format(bot.name))
+        self.registry[bot.name] = bot
+
+    def gather(self):
+
+        coros = []
+
+        for bot in self.registry.values():
+            coros.append(bot())
+            coros.extend(load_plugin(x)(bot) for x in bot.daemons)
+
+        return asyncio.gather(*coros)
+
+
+class Bot(object):
 
     def __init__(self, token, daemons=None, **kwargs):
 
@@ -47,11 +68,6 @@ class Bot(object):
         self.environment = None
 
         self.params = kwargs
-
-        if self.name in Bot._registry:
-            raise ValueError("A bot has already been registered with {}".format(self.name))
-
-        Bot._registry[self.name] = self
 
     def __call__(self):
         self.running = False
@@ -164,20 +180,11 @@ class Bot(object):
                 return item
 
 
-def gather():
+def run(*bots):
 
-    coros = []
-
-    for bot in Bot._registry.values():
-        coros.append(bot())
-        coros.extend(load_plugin(x)(bot) for x in bot.daemons)
-
-    return asyncio.gather(*coros)
-    
-
-def start():
+    runner = Runner(*bots)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(gather())
+    loop.run_until_complete(runner.gather())
     loop.close()
 
