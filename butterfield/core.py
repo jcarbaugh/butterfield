@@ -1,9 +1,9 @@
 import asyncio
+import hashlib
 import importlib
 import itertools
 import json
 import os
-import uuid
 from collections import defaultdict
 
 import websockets
@@ -41,9 +41,9 @@ class Runner(object):
             self.add_bot(bot)
 
     def add_bot(self, bot):
-        if bot.name in self.registry:
-            raise ValueError("A bot has already been registered with {}".format(bot.name))
-        self.registry[bot.name] = bot
+        if bot.uuid in self.registry:
+            raise ValueError("Bot {} has already been registered".format(bot.uuid))
+        self.registry[bot.uuid] = bot
 
     def gather(self):
 
@@ -60,20 +60,21 @@ class Bot(object):
 
     def __init__(self, token, daemons=None, **kwargs):
 
-        self.uuid = uuid.uuid4().hex
-        self.name = self.uuid
         self.slack = Slacker(token)
+        self.uuid = hashlib.sha1(token.encode("utf-8")).hexdigest()
+        
         self.handlers = defaultdict(list)
         self.daemons = daemons or []
         self.environment = None
-
         self.params = kwargs
 
     def __call__(self):
+
         self.running = False
         self._message_id = 0
+
         resp = self.slack.rtm.start()
-        self.id = resp.body['self']['id']
+
         self.environment = {
             'self': resp.body['self'],
             'team': resp.body['team'],
@@ -88,6 +89,16 @@ class Bot(object):
 
     def __repr__(self):
         return "<butterfield.Bot uuid:{}>".format(self.uuid)
+
+    @property
+    def id(self):
+        if self.environment:
+            return self.environment['self']['id']
+
+    @property
+    def name(self):
+        if self.environment:
+            return self.environment['self']['name']
 
     @asyncio.coroutine
     def ws_handler(self, url, handler):
@@ -135,11 +146,15 @@ class Bot(object):
         if self.running is False:
             return
 
-        channel = self.get_channel(channel_name_or_id)
+        if channel_name_or_id.startswith('#'):
+            channel = self.get_channel(channel_name_or_id)['id']
+        else:
+            channel = channel_name_or_id
+
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'message',
-                'channel': channel['id'],
+                'channel': channel,
                 'text': text}
         content = json.dumps(data)
         yield from self.ws.send(content)
