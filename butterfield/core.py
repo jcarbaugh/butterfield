@@ -8,10 +8,12 @@ from collections import defaultdict
 
 import websockets
 from slacker import Slacker
+from .utils import load_plugin
+
 
 from .utils import load_plugin
 
-__all__ = ['Bot', 'EVENTS', 'ALL']
+__all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 
 
 ALL = '*'
@@ -31,20 +33,47 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
           'bot_changed', 'accounts_changed')
 
 
+class Runner(object):
+
+    def __init__(self, *bots):
+        self.registry = {}
+        for bot in bots:
+            self.add_bot(bot)
+
+    def add_bot(self, bot):
+        if bot.name in self.registry:
+            raise ValueError("A bot has already been registered with {}".format(bot.name))
+        self.registry[bot.name] = bot
+
+    def gather(self):
+
+        coros = []
+
+        for bot in self.registry.values():
+            coros.append(bot())
+            coros.extend(load_plugin(x)(bot) for x in bot.daemons)
+
+        return asyncio.gather(*coros)
+
+
 class Bot(object):
 
-    def __init__(self, token):
+    def __init__(self, token, daemons=None, **kwargs):
+
         self.uuid = uuid.uuid4().hex
+        self.name = self.uuid
         self.slack = Slacker(token)
         self.handlers = defaultdict(list)
+        self.daemons = daemons or []
         self.environment = None
 
-    def start(self):
+        self.params = kwargs
+
+    def __call__(self):
         self.running = False
         self._message_id = 0
         resp = self.slack.rtm.start()
         self.id = resp.body['self']['id']
-        self.name = resp.body['self']['name']
         self.environment = {
             'self': resp.body['self'],
             'team': resp.body['team'],
@@ -57,8 +86,12 @@ class Bot(object):
 
         return self.ws_handler(resp.body['url'], self)
 
+    def __repr__(self):
+        return "<butterfield.Bot uuid:{}>".format(self.uuid)
+
     @asyncio.coroutine
     def ws_handler(self, url, handler):
+
         self.ws = yield from websockets.connect(url)
         self.running = True
 
@@ -145,3 +178,13 @@ class Bot(object):
         for item in self.environment[key].values():
             if item['name'] == name_or_id:
                 return item
+
+
+def run(*bots):
+
+    runner = Runner(*bots)
+
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(runner.gather())
+    loop.close()
+

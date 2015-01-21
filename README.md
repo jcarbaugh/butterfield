@@ -20,7 +20,8 @@ This simple bot will listen for *message* events and echo the message to the sam
 	
 	b = Bot('slack-bot-key')
 	b.listen(echo)
-	b.start()
+
+	butterfield.run(b)
 
 ## Running butterfield
 
@@ -28,17 +29,29 @@ This package provides the *butterfield* command line utility. This command takes
 
 	$ butterfield mybot-config.json
 
+If you are running butterfield in development, you can launch the command line utility directly:
+
+	$ python -m "butterfield.cli" mybot-config.json
+
 ### Bot configuration files
 
-A butterfield config file contains a JSON object defining the bot that will be created.
+A butterfield config file contains a JSON array containing objects defining the bots that will be created.
 
-	{
-		"key": "i-made-this-key-up",
-		"plugins": [
-			"butterfield.handlers.devel.log",
-			"butterfield.handlers.devel.emoji"
-		]
-	}
+	[
+		{
+			"key": "i-made-this-key-up",
+			"plugins": [
+				"butterfield.handlers.devel.log",
+				"butterfield.handlers.devel.emoji"
+			]
+		},
+		{
+			"key": "also-a-made-up-key",
+			"plugins": [
+				"butterfield.handlers.devel.log",
+			]
+		}
+	]
 
 The *key* property contains the [Slack bot user](https://api.slack.com/bot-users) key. The *plugins* property is a list of strings that are module paths to event handler plugins.
 
@@ -68,15 +81,29 @@ Handlers are added to the bot using the *listen* method. The handler parameter c
 	mybot.listen(console_printer)
 	mybot.listen("butterfield.handlers.devel.log")
 
-Now just start the bot and it'll run... FOREVER.
+Now just start the bot and it will run... FOREVER.
 
-	mybot.start()
+	butterfield.run(mybot)
+
+Multiple bots can be started by passing multiple instances to *butterfield.run()*:
+
+	butterfield.run(mybot, myotherbot)
+
+or
+
+	allthebots = [mybot, myotherbot]
+	butterfield.run(*allthebots)
 
 ### Posting to Slack
 
 Handlers can post messages back to Slack using the *post* method on the bot that was passed to it. The first parameter is the id of the channel that will receive the post. The second parameter is the message that will be posted.
 
 	bot.post(channel_id, 'Hi, channel!')
+
+### Daemons
+
+They exist. This section should tell you about them.
+
 
 ## TODO
 

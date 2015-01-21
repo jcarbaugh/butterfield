@@ -24,7 +24,7 @@ def emoji(bot, message: "message"):
 def big_ben(bot):
     while True:
         yield from bot.post(
-            'C035687FU', # Sunlight's #testing
+            '#butterfield', # Sunlight's #testing
             "DONG",
         )
         yield from asyncio.sleep(5)

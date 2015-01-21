@@ -1,7 +1,8 @@
 import sys
 import json
 import asyncio
-from . import Bot, ALL
+
+from .core import Bot, run
 from .utils import load_plugin
 
 
@@ -11,21 +12,22 @@ def main():
     """
     _, config, *args = sys.argv
     with open(config, 'r') as fd:
-        config = json.load(fd)
+        bot_config = json.load(fd)
 
-    bot = Bot(config.get("key"))
-    for plugin in config.get("plugins", []):
-        bot.listen(plugin)
+    bots = []
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(
-        asyncio.gather(*[
-            bot.start()
-        ] + [
-            load_plugin(x)(bot) for x in config.get("daemons", [])
-        ])
-    )
-    loop.close()
+    for config in bot_config:
+
+        params = config.get('params') or {}
+        daemons = config.get('daemons')
+
+        bot = Bot(config.get("key"), daemons=daemons, **params)
+        for plugin in config.get("plugins", []):
+            bot.listen(plugin)
+
+        bots.append(bot)
+
+    run(*bots)
 
 
 if __name__ == '__main__':
