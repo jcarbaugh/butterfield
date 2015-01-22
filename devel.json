@@ -1,12 +1,12 @@
 [
-	{
-		"key": "",
-		"daemons": [
-	        "butterfield.handlers.devel.big_ben"
-	    ],
-	    "plugins": [
-	        "butterfield.handlers.devel.log",
-	        "butterfield.handlers.devel.emoji"
-	    ]
-	}
+  {
+    "key": "",
+    "daemons": [
+      "butterfield.handlers.devel.big_ben"
+    ],
+    "plugins": [
+      "butterfield.handlers.devel.log",
+      "butterfield.handlers.devel.emoji"
+    ]
+  }
 ]
