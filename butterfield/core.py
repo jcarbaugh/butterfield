@@ -10,9 +10,6 @@ import websockets
 from slacker import Slacker
 from .utils import load_plugin
 
-
-from .utils import load_plugin
-
 __all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 
 
