@@ -1,4 +1,3 @@
 requests==2.5.0
-waitress==0.8.9
 websockets==2.3
 slacker
