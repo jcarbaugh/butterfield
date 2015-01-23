@@ -6,6 +6,8 @@ import json
 import os
 from collections import defaultdict
 
+import aiohttp
+from aiohttp.server import ServerHttpProtocol
 import websockets
 from slacker import Slacker
 from .utils import load_plugin
@@ -30,6 +32,66 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
           'bot_changed', 'accounts_changed')
 
 
+class HTTPServer(ServerHttpProtocol):
+
+    ENCODING = "utf-8"
+
+    def make_response(self, code, *headers, content_type=None):
+        content_type = content_type if content_type else "text/html"
+        response = aiohttp.Response(self.writer, code)
+        response.add_header('Transfer-Encoding', 'chunked')
+        response.add_header('Content-Type', content_type)
+        for k, v in headers:
+            response.add_header(k, v)
+        response.send_headers()
+        return response
+
+    def render(self, content, *headers, code=200):
+        response = self.make_response(code, *headers)
+        response.write(bytes(content, self.ENCODING))
+        response.write_eof()
+        return response
+
+    @asyncio.coroutine
+    def handle_request(self, message, payload):
+
+        path = message.path
+        if path != "/" and path.startswith("/"):
+            path = path[1:]
+
+        method = message.method
+        func = None
+        match = None
+
+        # for route, fn in self._app.routes:
+        #     match = re.match(route, path)
+        #     if match:
+        #         func = fn
+        #         break
+        # else:
+        #     func = self.no_route
+        #     match = None
+
+        print("[{method}] - {path}".format(path=path, method=method))
+
+        # request = MoxieRequest()
+        # request.handler = self
+        # request.path = path
+        # request.method = method
+        # request.message = message
+        # request.payload = payload
+        # request.make_response = self.make_response
+        # request.render = self.render
+
+        # kwargs = match.groupdict() if match else {}
+        # ret = yield from func(request, **kwargs)
+        # return ret
+
+        content = ",".join(bot.name for bot in self.runner.registry.values())
+
+        return self.render(content, code=200)
+
+
 class Runner(object):
 
     def __init__(self, *bots):
@@ -37,14 +99,35 @@ class Runner(object):
         for bot in bots:
             self.add_bot(bot)
 
+    def __getitem__(self, key):
+
+        if key in self.registry:
+            return self.registry[key]
+
+        for bot in self.registry.values():
+            if bot.name == key:
+                return bot
+
     def add_bot(self, bot):
         if bot.uuid in self.registry:
             raise ValueError("Bot {} has already been registered".format(bot.uuid))
         self.registry[bot.uuid] = bot
 
-    def gather(self):
+    def gather(self, loop=None, http_server=True):
+
+        if not loop:
+           loop = asyncio.get_event_loop()
 
         coros = []
+
+        if http_server:
+
+            def server():
+                http = HTTPServer()
+                http.runner = self
+                return http
+
+            coros.append(loop.create_server(server, host="0.0.0.0", port=8000))
 
         for bot in self.registry.values():
             coros.append(bot())
@@ -197,6 +280,6 @@ def run(*bots):
     runner = Runner(*bots)
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(runner.gather())
+    loop.run_until_complete(runner.gather(loop))
     loop.close()
 
