@@ -2,14 +2,16 @@
 # Copyright (c) Sunlight Labs, 2012 under the terms and conditions
 # of the LICENSE file.
 
-from butterfield import __appname__, __version__
+# from butterfield import __appname__, __version__
 from setuptools import setup
 
 long_description = open('README.md').read()
 
 setup(
-    name       = __appname__,
-    version    = __version__,
+    # name       = __appname__,
+    # version    = __version__,
+    name       = "butterfield",
+    version    = "0.1",
     packages   = ['butterfield'],
 
     install_requires = [
