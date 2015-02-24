@@ -4,9 +4,9 @@ from aiowmata.rail import get_predictions
 import asyncio
 import json
 import re
+from butterfield import handlers
 
-
-@asyncio.coroutine
+@handlers.basic
 def wmata(bot, message):
     text = message['text']
     channel = message['channel']

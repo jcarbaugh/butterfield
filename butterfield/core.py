@@ -8,6 +8,7 @@ from collections import defaultdict
 
 import websockets
 from slacker import Slacker
+from .handlers import environment
 from .utils import load_plugin
 
 __all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
@@ -24,10 +25,17 @@ EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
           'file_created', 'file_shared', 'file_unshared', 'file_public', 'file_private',
           'file_change', 'file_deleted', 'file_comment_added', 'file_comment_edited',
           'file_comment_deleted', 'presence_change', 'manual_presence_change',
-          'pref_chage', 'user_change', 'team_join', 'star_added', 'star_removed',
+          'pref_chage', 'user_change', 'user_typing', 'team_join', 'star_added', 'star_removed',
           'emoji_changed', 'commands_changed', 'team_pref_change', 'team_rename',
           'team_domain_change', 'email_domain_changed', 'bot_added',
           'bot_changed', 'accounts_changed')
+
+
+@asyncio.coroutine
+def environment_handler(bot, message: ALL):
+    func = getattr(environment, message['type'], None)
+    if func:
+        yield from func(bot, message)
 
 
 class Runner(object):
@@ -117,6 +125,8 @@ class Bot(object):
             message_type = message['type']
             type_handlers = self.handlers[message_type]
 
+            yield from environment_handler(self, message)
+
             for handler in itertools.chain(self.handlers[ALL], type_handlers):
                 asyncio.async(handler(self, message))
 
@@ -143,18 +153,22 @@ class Bot(object):
         if self.running is False:
             return
 
-        if channel_name_or_id.startswith('#'):
-            channel = self.get_channel(channel_name_or_id)['id']
-        else:
-            channel = channel_name_or_id
-
+        channel = self.channel(channel_name_or_id)
+        if not channel:
+            channel = self.im(channel_name_or_id)
+        
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'message',
-                'channel': channel,
+                'channel': channel['id'],
                 'text': text}
         content = json.dumps(data)
         yield from self.ws.send(content)
+
+    @asyncio.coroutine
+    def dm(self, user_name_or_id, text):
+        channel = self.im(user_name_or_id)
+        yield from self.post(channel['id'], text)
 
     @asyncio.coroutine
     def ping(self):
@@ -167,28 +181,38 @@ class Bot(object):
         content = json.dumps(data)
         yield from self.ws.send(content)
 
-    def get_channel(self, name_or_id):
-        return self._env_item('channels', name_or_id, prefix='#')
+    def channel(self, name_or_id):
+        return self._env_item('channels', 'name', name_or_id, prefix='#')
 
-    def get_group(self, name_or_id):
-        return self._env_item('groups', name_or_id, prefix='#')
+    def group(self, name_or_id):
+        return self._env_item('groups', 'name', name_or_id, prefix='#')
 
-    def get_user(self, name_or_id):
-        return self._env_item('users', name_or_id, prefix='@')
+    def im(self, name_or_id):
+        channel = self._env_item('ims', 'user', name_or_id, prefix='@')
+        if not channel:
+            user = self.user(name_or_id)
+            if user:
+                resp = self.slack.im.open(user['id'])
+                channel = resp.body['channel']
+                self.environment['ims'][channel['id']] = channel
+        return channel
 
-    def _env_item(self, key, name_or_id, prefix=None):
+    def user(self, name_or_id):
+        return self._env_item('users', 'name', name_or_id, prefix='@')
 
-        if key not in ['channels', 'users', 'groups', 'ims']:
-            raise ValueError('{} is not a valid type'.format(key))
+    def _env_item(self, obj, attr, name_or_id, prefix=None):
 
-        if name_or_id in self.environment[key]:
-            return self.environment[key][name_or_id]
+        if obj not in ['channels', 'users', 'groups', 'ims']:
+            raise ValueError('{} is not a valid type'.format(obj))
 
-        if prefix:
-            name_or_id = name_or_id.lstrip(prefix)
+        if prefix and name_or_id.startswith(prefix):
+            name_or_id = name_or_id[1:]
 
-        for item in self.environment[key].values():
-            if item['name'] == name_or_id:
+        if name_or_id in self.environment[obj]:
+            return self.environment[obj][name_or_id]
+
+        for item in self.environment[obj].values():
+            if attr in item and item[attr] == name_or_id:
                 return item
 
 
