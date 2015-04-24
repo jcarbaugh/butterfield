@@ -12,10 +12,10 @@ This simple bot will listen for *message* events and echo the message to the sam
 	from butterfield import Bot
 	
 	@asyncio.coroutine
-	def echo(bot, msg: 'message'):
+	def echo(bot, message: 'message'):
 		yield from bot.post(
-			msg['channel'],
-			msg['text']
+			message['channel'],
+			message['text']
 		)
 	
 	b = Bot('slack-bot-key')
@@ -70,9 +70,9 @@ Message handlers are asyncio [coroutines](https://docs.python.org/3/library/asyn
 	import asyncio
 
 	@asyncio.coroutine
-	def console_printer(bot, msg: "message"):
-		if 'text' in msg:
-			print(msg['text'])
+	def console_printer(bot, message: "message"):
+		if 'text' in message:
+			print(message['text'])
 
 A [parameter annotation](https://www.python.org/dev/peps/pep-3107/) is used on the message parameter to specify the message types the coroutine will receive. This can be a single string or a list of strings to specificy multiple message types. To trigger the handler for all event types, use `"*"` or `butterfield.ALL`. The full list of event types can be found in the [RTM API docs](https://api.slack.com/rtm).
 
