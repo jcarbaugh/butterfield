@@ -6,6 +6,7 @@ import json
 import re
 from butterfield import handlers
 
+
 @handlers.basic
 def wmata(bot, message):
     text = message['text']

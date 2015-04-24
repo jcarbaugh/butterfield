@@ -17,16 +17,18 @@ __all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 ALL = '*'
 
 EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
-          'channel_joined', 'channel_left', 'channel_deleted', 'channel_rename',
-          'channel_archive', 'channel_unarchive', 'channel_history_change',
-          'im_created', 'im_open', 'im_close', 'im_marked', 'im_history_changed',
-          'group_joined', 'group_left', 'group_open', 'group_close', 'group_archive',
-          'group_unarchive', 'group_rename', 'group_marked', 'group_history_changed',
-          'file_created', 'file_shared', 'file_unshared', 'file_public', 'file_private',
-          'file_change', 'file_deleted', 'file_comment_added', 'file_comment_edited',
-          'file_comment_deleted', 'presence_change', 'manual_presence_change',
-          'pref_chage', 'user_change', 'user_typing', 'team_join', 'star_added', 'star_removed',
-          'emoji_changed', 'commands_changed', 'team_pref_change', 'team_rename',
+          'channel_joined', 'channel_left', 'channel_deleted',
+          'channel_rename', 'channel_archive', 'channel_unarchive',
+          'channel_history_change', 'im_created', 'im_open', 'im_close',
+          'im_marked', 'im_history_changed', 'group_joined', 'group_left',
+          'group_open', 'group_close', 'group_archive', 'group_unarchive',
+          'group_rename', 'group_marked', 'group_history_changed',
+          'file_created', 'file_shared', 'file_unshared', 'file_public',
+          'file_private', 'file_change', 'file_deleted', 'file_comment_added',
+          'file_comment_edited', 'file_comment_deleted', 'presence_change',
+          'manual_presence_change', 'pref_chage', 'user_change', 'user_typing',
+          'team_join', 'star_added', 'star_removed', 'emoji_changed',
+          'commands_changed', 'team_pref_change', 'team_rename',
           'team_domain_change', 'email_domain_changed', 'bot_added',
           'bot_changed', 'accounts_changed')
 
@@ -47,7 +49,8 @@ class Runner(object):
 
     def add_bot(self, bot):
         if bot.uuid in self.registry:
-            raise ValueError("Bot {} has already been registered".format(bot.uuid))
+            raise ValueError(
+                "Bot {} has already been registered".format(bot.uuid))
         self.registry[bot.uuid] = bot
 
     def gather(self):
@@ -67,7 +70,7 @@ class Bot(object):
 
         self.slack = Slacker(token)
         self.uuid = hashlib.sha1(token.encode("utf-8")).hexdigest()
-        
+
         self.handlers = defaultdict(list)
         self.daemons = daemons or []
         self.environment = None
@@ -141,11 +144,12 @@ class Bot(object):
             ))
 
         if isinstance(events, str):
-            events = [events,]
+            events = [events]
 
         for event in events:
             if event not in EVENTS and event != ALL:
-                raise ValueError('`{}` is not a valid event type'.format(event))
+                raise ValueError(
+                    '`{}` is not a valid event type'.format(event))
             self.handlers[event].append(coro)
 
     @asyncio.coroutine
@@ -156,7 +160,7 @@ class Bot(object):
         channel = self.channel(channel_name_or_id)
         if not channel:
             channel = self.im(channel_name_or_id)
-        
+
         self._message_id += 1
         data = {'id': self._message_id,
                 'type': 'message',
@@ -223,4 +227,3 @@ def run(*bots):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(runner.gather())
     loop.close()
-

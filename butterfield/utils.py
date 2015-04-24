@@ -11,7 +11,8 @@ def load_plugin(name):
 
 def at_bot(func):
     def inner(bot, message: "message"):
-        match = re.match(r"<@{}>(?::)? (.*)".format(bot.id), message.get('text'))
+        match = re.match(r"<@{}>(?::)? (.*)".format(bot.id),
+                         message.get('text'))
         if match:
             message['text'] = match.group(1)
             yield from func(bot, message)
