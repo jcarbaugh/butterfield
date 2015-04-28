@@ -17,7 +17,7 @@ ALL = '*'
 
 EVENTS = (
     'accounts_changed', 'bot_added', 'bot_changed', 'channel_archive',
-    'channel_created', 'channel_deleted', 'channel_history_change',
+    'channel_created', 'channel_deleted', 'channel_history_changed',
     'channel_joined', 'channel_left', 'channel_marked',
     'channel_rename', 'channel_unarchive', 'commands_changed',
     'email_domain_changed', 'emoji_changed', 'file_change',
@@ -28,9 +28,10 @@ EVENTS = (
     'group_marked', 'group_open', 'group_rename', 'group_unarchive',
     'hello', 'im_close', 'im_created', 'im_history_changed',
     'im_marked', 'im_open', 'manual_presence_change', 'message',
-    'pref_chage', 'presence_change', 'star_added', 'star_removed',
-    'team_domain_change', 'team_join', 'team_pref_change',
-    'team_rename', 'user_change')
+    'pin_added', 'pin_removed', 'pref_change', 'presence_change',
+    'star_added', 'star_removed', 'team_domain_change', 'team_join',
+    'team_migration_started', 'team_plan_change', 'team_pref_change',
+    'team_rename', 'user_change', 'user_typing')
 
 
 class Runner(object):
