@@ -15,7 +15,7 @@ setup(
     packages   = ['butterfield'],
 
     install_requires = [
-        "slacker",
+        "aiohttp",
         "requests==2.5.0",
         "websockets==2.3",
     ],

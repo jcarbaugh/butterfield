@@ -1,17 +1,17 @@
 import asyncio
 import hashlib
-import importlib
 import itertools
 import json
-import os
 from collections import defaultdict
 
+import aiohttp
 import websockets
-from slacker import Slacker
 from .utils import load_plugin
 
 __all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 
+
+SLACK_API_BASE_URL = 'https://slack.com/api/{api}?token={token}'
 
 ALL = '*'
 
@@ -62,7 +62,7 @@ class Bot(object):
 
     def __init__(self, token, daemons=None, **kwargs):
 
-        self.slack = Slacker(token)
+        self.token = token
         self.uuid = hashlib.sha1(token.encode("utf-8")).hexdigest()
 
         self.handlers = defaultdict(list)
@@ -70,24 +70,33 @@ class Bot(object):
         self.environment = None
         self.params = kwargs
 
+    @asyncio.coroutine
     def __call__(self):
 
         self.running = False
         self._message_id = 0
 
-        resp = self.slack.rtm.start()
+        url = SLACK_API_BASE_URL.format(api='rtm.start', token=self.token)
+
+        response = yield from aiohttp.request('GET', url)
+        data = yield from response.content.read()
+        response.close()
+
+        data = data.decode('utf-8')
+        body = json.loads(data)
 
         self.environment = {
-            'self': resp.body['self'],
-            'team': resp.body['team'],
-            'users': {u['id']: u for u in resp.body['users']},
-            'channels': {c['id']: c for c in resp.body['channels']},
-            'groups': {g['id']: g for g in resp.body['groups']},
-            'ims': {i['id']: i for i in resp.body['ims']},
-            'bots': resp.body['bots'],
+            'self': body['self'],
+            'team': body['team'],
+            'users': {u['id']: u for u in body['users']},
+            'channels': {c['id']: c for c in body['channels']},
+            'groups': {g['id']: g for g in body['groups']},
+            'ims': {i['id']: i for i in body['ims']},
+            'bots': body['bots'],
         }
 
-        return self.ws_handler(resp.body['url'], self)
+        ret = yield from self.ws_handler(body['url'], self)
+        return ret
 
     def __repr__(self):
         return "<butterfield.Bot uuid:{}>".format(self.uuid)
