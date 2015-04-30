@@ -43,7 +43,8 @@ class Runner(object):
 
     def add_bot(self, bot):
         if bot.uuid in self.registry:
-            raise ValueError("Bot {} has already been registered".format(bot.uuid))
+            raise ValueError(
+                "Bot {} has already been registered".format(bot.uuid))
         self.registry[bot.uuid] = bot
 
     def gather(self):
@@ -63,7 +64,7 @@ class Bot(object):
 
         self.slack = Slacker(token)
         self.uuid = hashlib.sha1(token.encode("utf-8")).hexdigest()
-        
+
         self.handlers = defaultdict(list)
         self.daemons = daemons or []
         self.environment = None
@@ -135,11 +136,12 @@ class Bot(object):
             ))
 
         if isinstance(events, str):
-            events = [events,]
+            events = [events]
 
         for event in events:
             if event not in EVENTS and event != ALL:
-                raise ValueError('`{}` is not a valid event type'.format(event))
+                raise ValueError(
+                    '`{}` is not a valid event type'.format(event))
             self.handlers[event].append(coro)
 
     @asyncio.coroutine
@@ -203,4 +205,3 @@ def run(*bots):
     loop = asyncio.get_event_loop()
     loop.run_until_complete(runner.gather())
     loop.close()
-
