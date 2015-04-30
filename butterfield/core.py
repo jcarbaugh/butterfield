@@ -15,19 +15,23 @@ __all__ = ['Bot', 'Runner', 'EVENTS', 'ALL', 'run']
 
 ALL = '*'
 
-EVENTS = ('hello', 'message', 'channel_marked', 'channel_created',
-          'channel_joined', 'channel_left', 'channel_deleted', 'channel_rename',
-          'channel_archive', 'channel_unarchive', 'channel_history_change',
-          'im_created', 'im_open', 'im_close', 'im_marked', 'im_history_changed',
-          'group_joined', 'group_left', 'group_open', 'group_close', 'group_archive',
-          'group_unarchive', 'group_rename', 'group_marked', 'group_history_changed',
-          'file_created', 'file_shared', 'file_unshared', 'file_public', 'file_private',
-          'file_change', 'file_deleted', 'file_comment_added', 'file_comment_edited',
-          'file_comment_deleted', 'presence_change', 'manual_presence_change',
-          'pref_chage', 'user_change', 'team_join', 'star_added', 'star_removed',
-          'emoji_changed', 'commands_changed', 'team_pref_change', 'team_rename',
-          'team_domain_change', 'email_domain_changed', 'bot_added',
-          'bot_changed', 'accounts_changed')
+EVENTS = (
+    'accounts_changed', 'bot_added', 'bot_changed', 'channel_archive',
+    'channel_created', 'channel_deleted', 'channel_history_changed',
+    'channel_joined', 'channel_left', 'channel_marked',
+    'channel_rename', 'channel_unarchive', 'commands_changed',
+    'email_domain_changed', 'emoji_changed', 'file_change',
+    'file_comment_added', 'file_comment_deleted', 'file_comment_edited',
+    'file_created', 'file_deleted', 'file_private', 'file_public',
+    'file_shared', 'file_unshared', 'group_archive', 'group_close',
+    'group_history_changed', 'group_joined', 'group_left',
+    'group_marked', 'group_open', 'group_rename', 'group_unarchive',
+    'hello', 'im_close', 'im_created', 'im_history_changed',
+    'im_marked', 'im_open', 'manual_presence_change', 'message',
+    'pin_added', 'pin_removed', 'pref_change', 'presence_change',
+    'star_added', 'star_removed', 'team_domain_change', 'team_join',
+    'team_migration_started', 'team_plan_change', 'team_pref_change',
+    'team_rename', 'user_change', 'user_typing')
 
 
 class Runner(object):
