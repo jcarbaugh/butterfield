@@ -108,6 +108,9 @@ class Bot(object):
         self.ws = yield from websockets.connect(url)
         self.running = True
 
+        # Fix keepalives as long as we're ``running``.
+        asyncio.async(self.ws_keepalive())
+
         while True:
             content = yield from self.ws.recv()
 
@@ -124,6 +127,14 @@ class Bot(object):
 
             for handler in itertools.chain(self.handlers[ALL], type_handlers):
                 asyncio.async(handler(self, message))
+
+        self.running = False
+
+    @asyncio.coroutine
+    def ws_keepalive(self):
+        while self.running:
+            yield from asyncio.sleep(120)
+            yield from self.ping()
 
     def listen(self, coro):
         if isinstance(coro, str):
