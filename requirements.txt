@@ -1,2 +1,2 @@
 websockets==2.3
-slacker==https://github.com/gfreezy/slacker.git
+git+https://github.com/gfreezy/slacker.git
