@@ -11,15 +11,12 @@ setup(
     # name       = __appname__,
     # version    = __version__,
     name       = "butterfield",
-    version    = "0.1",
+    version    = "0.1.1",
     packages   = ['butterfield'],
 
     install_requires = [
         "websockets==2.3",
-        "slacker==0.8.7",
-    ],
-    dependency_links=[
-        "https://github.com/gfreezy/slacker/tarball/master#egg=slacker-0.8.7",
+        "slacker-asyncio==0.8.6",
     ],
     entry_points = {'console_scripts': [
         'butterfield = butterfield.cli:main'
