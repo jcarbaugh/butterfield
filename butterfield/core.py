@@ -1,9 +1,7 @@
 import asyncio
 import hashlib
-import importlib
 import itertools
 import json
-import os
 from collections import defaultdict
 
 import websockets
@@ -70,12 +68,13 @@ class Bot(object):
         self.environment = None
         self.params = kwargs
 
+    @asyncio.coroutine
     def __call__(self):
 
         self.running = False
         self._message_id = 0
 
-        resp = self.slack.rtm.start()
+        resp = yield from self.slack.rtm.start()
 
         self.environment = {
             'self': resp.body['self'],
@@ -87,7 +86,7 @@ class Bot(object):
             'bots': resp.body['bots'],
         }
 
-        return self.ws_handler(resp.body['url'], self)
+        yield from self.ws_handler(resp.body['url'])
 
     def __repr__(self):
         return "<butterfield.Bot uuid:{}>".format(self.uuid)
@@ -103,13 +102,13 @@ class Bot(object):
             return self.environment['self']['name']
 
     @asyncio.coroutine
-    def ws_handler(self, url, handler):
+    def ws_handler(self, url):
 
         self.ws = yield from websockets.connect(url)
         self.running = True
 
         # Fix keepalives as long as we're ``running``.
-        asyncio.async(self.ws_keepalive())
+        asyncio.ensure_future(self.ws_keepalive())
 
         while True:
             content = yield from self.ws.recv()
@@ -126,7 +125,7 @@ class Bot(object):
             type_handlers = self.handlers[message_type]
 
             for handler in itertools.chain(self.handlers[ALL], type_handlers):
-                asyncio.async(handler(self, message))
+                asyncio.ensure_future(handler(self, message))
 
         self.running = False
 
