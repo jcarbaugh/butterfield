@@ -15,9 +15,8 @@ setup(
     packages   = ['butterfield'],
 
     install_requires = [
-        "slacker",
-        "requests==2.5.0",
         "websockets==2.3",
+        "git+https://github.com/gfreezy/slacker.git",
     ],
 
     entry_points = {'console_scripts': [
