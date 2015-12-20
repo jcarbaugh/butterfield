@@ -17,6 +17,7 @@ setup(
     install_requires = [
         "websockets==2.3",
         "slacker-asyncio==0.8.6",
+        "aiohttp==0.19.0",
     ],
     entry_points = {'console_scripts': [
         'butterfield = butterfield.cli:main'
