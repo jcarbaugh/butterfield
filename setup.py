@@ -19,7 +19,7 @@ setup(
         "slacker==0.8.7",
     ],
     dependency_links=[
-        "git+ssh://git@github.com/gfreezy/slacker.git#egg=slacker-0.8.7"
+        "https://github.com/gfreezy/slacker/tarball/master#egg=slacker-0.8.7",
     ],
     entry_points = {'console_scripts': [
         'butterfield = butterfield.cli:main'
