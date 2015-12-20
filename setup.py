@@ -16,9 +16,11 @@ setup(
 
     install_requires = [
         "websockets==2.3",
-        "git+https://github.com/gfreezy/slacker.git",
+        "slacker==0.8.7",
     ],
-
+    dependency_links=[
+        "git+ssh://git@github.com/gfreezy/slacker.git#egg=slacker-0.8.7"
+    ],
     entry_points = {'console_scripts': [
         'butterfield = butterfield.cli:main'
     ]},
