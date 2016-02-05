@@ -78,9 +78,19 @@ class Bot(object):
 
         url = SLACK_API_BASE_URL.format(api='rtm.start', token=self.token)
 
-        response = yield from aiohttp.request('GET', url)
-        data = yield from response.content.read()
-        response.close()
+        try:
+            # aiohttp>=0.21.0
+            session = aiohttp.ClientSession
+        except AttributeError:
+            response = yield from aiohttp.request('GET', url)
+            data = yield from response.content.read()
+            response.close()
+        else:
+            session = session()
+            response = yield from session.request('GET', url)
+            data = yield from response.content.read()
+            response.close()
+            yield from session.close()
 
         data = data.decode('utf-8')
         body = json.loads(data)
