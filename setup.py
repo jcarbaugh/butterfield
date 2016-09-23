@@ -11,15 +11,13 @@ setup(
     # name       = __appname__,
     # version    = __version__,
     name       = "butterfield",
-    version    = "0.1",
+    version    = "0.1.1",
     packages   = ['butterfield'],
 
     install_requires = [
-        "slacker",
-        "requests==2.5.0",
         "websockets==2.3",
+        "slacker-asyncio==0.8.6",
     ],
-
     entry_points = {'console_scripts': [
         'butterfield = butterfield.cli:main'
     ]},
