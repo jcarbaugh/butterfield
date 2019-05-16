@@ -16,7 +16,7 @@ setup(
 
     install_requires = [
         "slacker",
-        "requests==2.5.0",
+        "requests",
         "websockets==2.3",
     ],
 
