@@ -17,7 +17,7 @@ setup(
     install_requires = [
         "slacker",
         "requests",
-        "websockets==2.3",
+        "websockets==9.1",
     ],
 
     entry_points = {'console_scripts': [
